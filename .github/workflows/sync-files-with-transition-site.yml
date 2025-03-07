@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'FAC-test/backend/dissemination/api_versions.py'
+      - 'backend/dissemination/api_versions.py'
   workflow_dispatch:
 
 jobs:
@@ -29,9 +29,9 @@ jobs:
 
       - name: Copy updated file(s)
         run: |
-          cp FAC-test/backend/dissemination/api_versions.py FAC-transition-site-test/assets/api/api_versions.py
+          cp backend/dissemination/api_versions.py FAC-transition-site-test/assets/api/api_versions.py
           cd FAC-transition-site-test
-          git add FAC-transition-site-test/assets/api/api_versions.py
+          git add assets/api/api_versions.py
           git commit -m "Sync api_versions.py from FAC-Test" || echo "No changes to commit"
 
       - name: Push changes
