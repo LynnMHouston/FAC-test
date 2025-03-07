@@ -40,9 +40,10 @@ jobs:
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/LynnMHouston/FAC-transition-site-test.git update-watched-file || echo "No changes to push"
 
       - name: Create Pull Request in FAC-Transition-Site-Test
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}  # Ensure GitHub CLI uses the correct token
         run: |
           cd FAC-transition-site-test
-          export GH_TOKEN=${{ secrets.GH_PAT }}  # Use Personal Access Token instead of GITHUB_TOKEN
           gh pr create \
             --repo LynnMHouston/FAC-transition-site-test \
             --head update-watched-file \
