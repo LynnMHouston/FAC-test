@@ -42,7 +42,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Automated update of api_versions.py"
           title: "Sync watched_file.txt: $(date +'%Y-%m-%d')"
           body: |
