@@ -41,19 +41,15 @@ jobs:
 
       - name: Create Pull Request in FAC-Transition-Site-Test
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}  # Use your GitHub PAT for authentication
+          GH_TOKEN: ${{ secrets.GH_PAT }}  # Use the new Personal Access Token
         run: |
           cd FAC-transition-site-test
-          PR_RESPONSE=$(curl -s -X POST -H "Authorization: token $GH_PAT" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/LynnMHouston/FAC-transition-site-test/pulls \
-            -d '{
-              "title": "Sync api_versions.py: '"$(date +'%Y-%m-%d')"'"",
-              "body": "This PR updates the api_versions.py file in FAC-Transition-Site-Test with changes from FAC-Test.",
-              "head": "update-watched-file",
-              "base": "main"
-            }')
+          gh pr create \
+            --repo LynnMHouston/FAC-transition-site-test \
+            --head update-watched-file \
+            --base main \
+            --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
+            --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-Test with changes from FAC-Test."
       
-          echo "GitHub API Response:"
-          echo "$PR_RESPONSE"
+                echo "$PR_RESPONSE"
 
