@@ -3,10 +3,10 @@ name: Sync File Updates with FAC-Transition-Site-Test
 on:
   push:
     branches:
-      - main  # Adjust if using a different branch
+      - main
     paths:
-      - 'path/to/watched_file.txt'  # Update this to match the file(s) you're tracking
-  workflow_dispatch:  # Allow manual triggering
+      - 'FAC-test/backend/dissemination/api_versions.py'
+  workflow_dispatch:
 
 jobs:
   sync-files:
@@ -23,29 +23,29 @@ jobs:
 
       - name: Clone FAC-Transition-Site-Test Repo
         run: |
-          git clone https://github.com/YOUR_GITHUB_USERNAME/FAC-transition-site-test.git
+          git clone https://github.com/LynnMHouston/FAC-transition-site-test.git
           cd FAC-transition-site-test
           git checkout -b update-watched-file || git checkout update-watched-file
 
       - name: Copy updated file(s)
         run: |
-          cp path/to/watched_file.txt FAC-transition-site-test/destination/path/watched_file.txt
+          cp FAC-test/backend/dissemination/api_versions.py FAC-transition-site-test/assets/api/api_versions.py
           cd FAC-transition-site-test
-          git add destination/path/watched_file.txt
-          git commit -m "Sync watched_file.txt from FAC-Test" || echo "No changes to commit"
+          git add FAC-transition-site-test/assets/api/api_versions.py
+          git commit -m "Sync api_versions.py from FAC-Test" || echo "No changes to commit"
 
       - name: Push changes
         run: |
           cd FAC-transition-site-test
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/YOUR_GITHUB_USERNAME/FAC-transition-site-test.git update-watched-file || echo "No changes to push"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/LynnMHouston/FAC-transition-site-test.git update-watched-file || echo "No changes to push"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GH_PAT }}
-          commit-message: "Automated update of watched_file.txt"
+          commit-message: "Automated update of api_versions.py"
           title: "Sync watched_file.txt: $(date +'%Y-%m-%d')"
           body: |
-            This PR updates the `watched_file.txt` in `FAC-transition-site-test` with changes from `FAC-test`.
+            This PR updates the `api_versions.py` in `FAC-transition-site-test` with changes from `FAC-test`.
           branch: "update-watched-file"
           base: "main"
