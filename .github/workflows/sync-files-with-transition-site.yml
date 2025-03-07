@@ -42,7 +42,7 @@ jobs:
       - name: Create Pull Request in FAC-Transition-Site-Test
         run: |
           cd FAC-transition-site-test
-          export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}  # Explicitly set the token
+          export GH_TOKEN=${{ secrets.GH_PAT }}  # Use Personal Access Token instead of GITHUB_TOKEN
           gh pr create \
             --repo LynnMHouston/FAC-transition-site-test \
             --head update-watched-file \
