@@ -41,16 +41,27 @@ jobs:
           cd FAC-transition-site-test
           git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/LynnMHouston/FAC-transition-site-test.git update-watched-file || echo "No changes to push"
 
-      - name: Create Pull Request in FAC-Transition-Site-Test
+      - name: Create or Update Pull Request in FAC-Transition-Site-Test
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}  # Use GH_PAT if available, fallback to GITHUB_TOKEN
         run: |
           cd FAC-transition-site-test
-          gh pr create \
-            --repo LynnMHouston/FAC-transition-site-test \
-            --head update-watched-file \
-            --base main \
-            --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
-            --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-Test with changes from FAC-Test."
-            
+          
+          # Check if a PR already exists
+          PR_EXISTS=$(gh pr list --repo LynnMHouston/FAC-transition-site-test --head update-watched-file --json number --jq '.[0].number')
+      
+          if [[ -z "$PR_EXISTS" ]]; then
+            echo "No existing PR found. Creating a new one..."
+            gh pr create \
+              --repo LynnMHouston/FAC-transition-site-test \
+              --head update-watched-file \
+              --base main \
+              --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
+              --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-Test with changes from FAC-Test."
+          else
+            echo "PR #$PR_EXISTS already exists. Updating description..."
+            gh pr edit $PR_EXISTS --repo LynnMHouston/FAC-transition-site-test \
+              --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
+              --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-Test with changes from FAC-Test. Latest commit added automatically."
+          fi
 
