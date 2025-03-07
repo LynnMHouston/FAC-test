@@ -1,4 +1,4 @@
-# Need to make sure "GH Pat" secret token exists in FAC repo
+# Need to make sure FAc repo has GITHUB_TOKEN, also change paths out of my test repos
 
 name: Sync File Updates with FAC-Transition-Site-Test
 
@@ -43,7 +43,7 @@ jobs:
 
       - name: Create Pull Request in FAC-Transition-Site-Test
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}  # Need to make sure "GH Pat" secret token exists in FAC repo
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}  # Use GH_PAT if available, fallback to GITHUB_TOKEN
         run: |
           cd FAC-transition-site-test
           gh pr create \
@@ -52,5 +52,5 @@ jobs:
             --base main \
             --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
             --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-Test with changes from FAC-Test."
-      
+            
 
