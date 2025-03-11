@@ -1,6 +1,7 @@
-# Need to make sure FAc repo has GITHUB_TOKEN, also change paths out of my test repos
+# Need to make sure FAC repo has GITHUB_TOKEN
+# Need new "api" subfolder in asset folder of transition site
 
-name: Sync File Updates with FAC-Transition-Site-Test
+name: Sync API File Updates with FAC-Transition-Site
 
 on:
   push:
@@ -15,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout FAC-Test Repo
+      - name: Checkout FAC Repo
         uses: actions/checkout@v4
 
       - name: Set up Git user
@@ -23,45 +24,55 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone FAC-Transition-Site-Test Repo
+      - name: Clone FAC-Transition-Site Repo
         run: |
-          git clone https://github.com/LynnMHouston/FAC-transition-site-test.git
+          git clone https://github.com/GSA-TTS/FAC-transition-site-test.git
           cd FAC-transition-site-test
           git checkout -b update-watched-file || git checkout update-watched-file
 
-      - name: Copy updated file(s)
+      - name: Check for differences
+        id: check_diff
         run: |
+          set -e  # Exit immediately on error
           cp backend/dissemination/api_versions.py FAC-transition-site-test/assets/api/api_versions.py
+          
+          cd FAC-transition-site-test
+          
+          # Check if file has changed
+          if git diff --quiet assets/api/api_versions.py; then
+            echo "No changes detected. Exiting workflow."
+            exit 0
+          else
+            echo "File has changed. Proceeding with commit and PR."
+          fi
+
+      - name: Commit and Push Changes
+        run: |
           cd FAC-transition-site-test
           git add assets/api/api_versions.py
-          git commit -m "Sync api_versions.py from FAC-Test" || echo "No changes to commit"
+          git commit -m "Sync api_versions.py from FAC" 
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/GSA-TTS/FAC-transition-site-test.git update-watched-file
 
-      - name: Push changes
-        run: |
-          cd FAC-transition-site-test
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/LynnMHouston/FAC-transition-site-test.git update-watched-file || echo "No changes to push"
-
-      - name: Create or Update Pull Request in FAC-Transition-Site-Test
+      - name: Create or Update Pull Request in FAC-Transition-Site
         env:
           GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}  # Use GH_PAT if available, fallback to GITHUB_TOKEN
         run: |
           cd FAC-transition-site-test
           
           # Check if a PR already exists
-          PR_EXISTS=$(gh pr list --repo LynnMHouston/FAC-transition-site-test --head update-watched-file --json number --jq '.[0].number')
+          PR_EXISTS=$(gh pr list --repo GSA-TTS/FAC-transition-site-test --head update-watched-file --json number --jq '.[0].number')
       
           if [[ -z "$PR_EXISTS" ]]; then
             echo "No existing PR found. Creating a new one..."
             gh pr create \
-              --repo LynnMHouston/FAC-transition-site-test \
+              --repo GSA-TTS/FAC-transition-site-test \
               --head update-watched-file \
               --base main \
               --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
-              --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-Test with changes from FAC-Test."
+              --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-test with changes from FAC."
           else
             echo "PR #$PR_EXISTS already exists. Updating description..."
-            gh pr edit $PR_EXISTS --repo LynnMHouston/FAC-transition-site-test \
+            gh pr edit $PR_EXISTS --repo GSA-TTS/FAC-transition-site-test \
               --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
-              --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-Test with changes from FAC-Test. Latest commit added automatically."
+              --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site-test with changes from FAC. Latest commit added automatically."
           fi
-
