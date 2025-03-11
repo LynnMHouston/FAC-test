@@ -1,7 +1,7 @@
 # Need to make sure FAC repo has GITHUB_TOKEN
 # Need new "api" subfolder in asset folder of transition site
 
-name: Sync API File Updates with FAC-Transition-Site
+name: Sync API File Updates with FAC-transition-site-test
 
 on:
   push:
@@ -24,11 +24,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Clone FAC-Transition-Site Repo with Authentication
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+      - name: Clone FAC-transition-site-test Repo
         run: |
-          git clone https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/GSA-TTS/FAC-transition-site-test.git
+          git clone https://github.com/LynnMHouston/FAC-transition-site-test.git
           cd FAC-transition-site-test
           git checkout -b update-watched-file || git checkout update-watched-file
 
@@ -53,11 +51,11 @@ jobs:
           cd FAC-transition-site-test
           git add assets/api/api_versions.py
           git commit -m "Sync api_versions.py from FAC" 
-          git push https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/GSA-TTS/FAC-transition-site-test.git update-watched-file
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/LynnMHouston/FAC-transition-site-test.git update-watched-file
 
-      - name: Create or Update Pull Request in FAC-Transition-Site
+      - name: Create or Update Pull Request in FAC-transition-site-test
         env:
-          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}  # Use GH_PAT if available, fallback to GITHUB_TOKEN
         run: |
           cd FAC-transition-site-test
           
@@ -71,10 +69,10 @@ jobs:
               --head update-watched-file \
               --base main \
               --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
-              --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site with changes from FAC."
+              --body "This PR updates the \`api_versions.py\` file in FAC-transition-site-test with changes from FAC."
           else
             echo "PR #$PR_EXISTS already exists. Updating description..."
             gh pr edit $PR_EXISTS --repo GSA-TTS/FAC-transition-site-test \
               --title "Sync api_versions.py: $(date +'%Y-%m-%d')" \
-              --body "This PR updates the \`api_versions.py\` file in FAC-Transition-Site with changes from FAC. Latest commit added automatically."
+              --body "This PR updates the \`api_versions.py\` file in FAC-transition-site-test-transition-site-test with changes from FAC-transition-site-test. Latest commit added automatically."
           fi
