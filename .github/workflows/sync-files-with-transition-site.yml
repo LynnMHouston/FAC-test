@@ -51,7 +51,14 @@ jobs:
           cd FAC-transition-site-test
           git add assets/api/api_versions.py
           git commit -m "Sync api_versions.py from FAC" 
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/LynnMHouston/FAC-transition-site-test.git update-watched-file
+          cd FAC-transition-site-test
+          
+          # Pull the latest changes from the remote branch before pushing
+          git pull --rebase origin update-watched-file || git pull --allow-unrelated-histories origin update-watched-file
+          
+          # Now push the new commit after syncing with remote
+          git push https://x-access-token:${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}@github.com/LynnMHouston/FAC-transition-site-test.git update-watched-file
+
 
       - name: Create or Update Pull Request in FAC-transition-site-test
         env:
